@@ -24,7 +24,7 @@ Code author: Angelo Ziletti, Ph.D. (angelo.ziletti@gmail.com; ziletti@fhi-berlin
 ------------------
 Installation
 ------------------
-Clone this repositoyr, cd into ARISE and execute
+Clone this repository, cd into ARISE and execute
 
     pip install -e .
 
