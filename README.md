@@ -8,7 +8,8 @@ ARISE: Crystal-structure recognition via Bayesian deep learning
 
 This package provides code for reproducing the results of 
 
-    A. Leitherer, A. Ziletti, and L.M. Ghiringhelli, Robust recognition and exploratory analysis of crystal structures via Bayesian deep learning, arXiv.... (2021)
+    A. Leitherer, A. Ziletti, and L.M. Ghiringhelli,
+    Robust recognition and exploratory analysis of crystal structures via Bayesian deep learning, arXiv.... (2021)
 
 This repository uses functionalities of ai4materials (https://github.com/angeloziletti/ai4materials, https://ai4materials.readthedocs.io/en/latest/).
 
@@ -25,7 +26,6 @@ Installation
 ------------------
 Clone this repositoyr, cd into ARISE and execute
 
-.. code:: bash
     pip install -e .
 
 
@@ -34,8 +34,6 @@ Usage
 ---------------
 
 For global or local analysis of single- or polycrystalline systems, one just needs to define the corresponding geometry file and load a pretrained model for prediction:
-
-.. code:: python
 
     from ai4materials.models import ARISE
 
