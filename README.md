@@ -28,6 +28,7 @@ Clone this repository, cd into ARISE and execute
 
     pip install -e .
 
+Currently, this package contains two implementations for the smooth-overlap-of-atomic-positions (SOAP) descriptor, one from quippy (https://github.com/libAtoms/QUIP) and one from DScribe (https://singroup.github.io/dscribe/latest/). These packages are external dependencies that have to be installed manually (see respective documentations).
 
 ---------------
 Usage
