@@ -43,6 +43,16 @@ tf.set_random_seed(0)
 logger = logging.getLogger('ai4materials')
 
 
+def plot_atomic_structures(atoms_list):
+    """
+    Based on:
+    https://www.brown.edu/Departments/Engineering/Labs/Peterson/tips/PyplotAtoms/index.html
+    plot list of atomic strucures.
+    TO DO
+    """
+    pass
+
+
 def insert_newlines(string, every=64):
     return '\n'.join(string[i:i + every] for i in range(0, len(string), every))
 

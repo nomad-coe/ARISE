@@ -33,11 +33,40 @@ from ai4materials.wrappers import load_descriptor
 from ai4materials.dataprocessing.preprocessing import prepare_dataset
 from ai4materials.dataprocessing.preprocessing import load_dataset_from_file
 from ai4materials.models.cnn_polycrystals import predict
+from ai4materials.utils.utils_config import get_data_filename
+import json
 from keras.models import load_model
 import pandas as pd
 import six.moves.cPickle as pickle
 
 logger = logging.getLogger('ai4materials')
+
+
+
+
+def get_training_data_paths():
+    trainig_data_path = get_data_filename('data/training_data')
+    path_to_x = os.path.join(trainig_data_path, 'soap_pristine_data_x.pkl')
+    path_to_y = os.path.join(trainig_data_path, 'soap_pristine_data_y.pkl')
+    path_to_summary = os.path.join(trainig_data_path, 'soap_pristine_data_summary.json')
+    
+    return path_to_x, path_to_y, path_to_summary
+    
+def shift_training_data_to_different_path(new_path):
+    path_to_x, path_to_y, path_to_summary = get_training_data_paths()
+    x = pickle.load(open(path_to_x, "rb"))
+    y = pickle.load(open(path_to_y, "rb"))
+    with open(path_to_summary) as json_file:
+        summary = json.load(json_file)
+    
+    x_name = os.path.basename(path_to_x)
+    y_name = os.path.basename(path_to_y)
+    summary_name = os.path.basename(path_to_summary)
+    
+    pickle.dump(x, open(os.path.join(new_path, x_name), "wb"))
+    pickle.dump(y, open(os.path.join(new_path, y_name), "wb"))
+    with open(os.path.join(new_path, summary_name), 'w') as outfile:
+        json.dump(summary, outfile)
 
 
 def make_strided_pattern_matching_dataset(polycrystal_file, descriptor, desc_metadata, configs,
@@ -108,15 +137,20 @@ def get_classification_map(configs, path_to_x_test, path_to_y_test, path_to_summ
                            mc_samples=100, interpolation='none', results_file=None, calc_uncertainty=True,
                            conf_matrix_file=None, train_set_name='hcp-bcc-sc-diam-fcc-pristine',
                            cmap_uncertainty='hot',
-                           interpolation_uncertainty='none'):
+                           interpolation_uncertainty='none', plot_results=False, path_to_summary_train=None):
 
+    if path_to_summary_train == None:
+        path_to_x, path_to_y, path_to_summary = get_training_data_paths()
+        with open(path_to_summary, 'rb') as f:
+            dataset_info_train = json.load(f)
+    """
     path_to_x_train = os.path.join(configs['io']['dataset_folder'], train_set_name + '_x.pkl')
     path_to_y_train = os.path.join(configs['io']['dataset_folder'], train_set_name + '_y.pkl')
     path_to_summary_train = os.path.join(configs['io']['dataset_folder'], train_set_name + '_summary.json')
 
     x_train, y_train, dataset_info_train = load_dataset_from_file(path_to_x=path_to_x_train, path_to_y=path_to_y_train,
                                                                   path_to_summary=path_to_summary_train)
-
+    """
     x_test, y_test, dataset_info_test = load_dataset_from_file(path_to_x=path_to_x_test, path_to_y=path_to_y_test,
                                                                path_to_summary=path_to_summary_test)
 
@@ -165,17 +199,24 @@ def get_classification_map(configs, path_to_x_test, path_to_y_test, path_to_summ
     predictive_mean_sorted = df_predictive_mean_sorted.drop(
         columns=['strided_pattern_positions_z', 'strided_pattern_positions_y', 'strided_pattern_positions_x']).values
 
+    predictive_mean_all_classes = []
     for idx_class in range(predictive_mean_sorted.shape[1]):
 
         if z_max == 1:
             prob_prediction_class = predictive_mean_sorted[:, idx_class].reshape(y_max, x_max)
         else:
             prob_prediction_class = predictive_mean_sorted[:, idx_class].reshape(z_max, y_max, x_max)
-
+        predictive_mean_all_classes.append(prob_prediction_class)
         title = 'Proto '+numerical_to_text_label[idx_class]+' Probability'
+        if not plot_results:
+            continue
         plot_prediction_heatmaps(prob_prediction_class, title=title, class_name=str(idx_class), prefix='prob',
                                  main_folder=configs['io']['main_folder'], cmap='viridis', color_nan='lightgrey',
                                  interpolation=interpolation, vmin=0.0, vmax=1.0) # added vmin, vmax here
+
+    np.save(os.path.join(configs['io']['results_folder'],
+                         configs['io']['polycrystal_file'] + '_probabilities.npy'),
+                         np.array(predictive_mean_all_classes))
 
     if calc_uncertainty:
         df_uncertainty = pd.DataFrame()
@@ -198,6 +239,11 @@ def get_classification_map(configs, path_to_x_test, path_to_y_test, path_to_summ
             else:
                 uncertainty_prediction = uncertainty_sorted[key].values.reshape(z_max, y_max, x_max)
 
+            np.save(os.path.join(configs['io']['results_folder'],
+                    configs['io']['polycrystal_file'] + '_' + key + '.npy'),
+                    uncertainty_prediction)
+            if not plot_results:
+                continue
             # for idx_uncertainty in range(predictive_mean_sorted.shape[1]):
             plot_prediction_heatmaps(uncertainty_prediction, title='Uncertainty ({})'.format(str(key)),
                                      main_folder=configs['io']['main_folder'], cmap=cmap_uncertainty,
@@ -220,7 +266,7 @@ def get_structures_by_boxes(xyz_filename, stride_size, box_size, show_plot_lengt
         assert sliding_volume[1] == sliding_volume[2]
         box_size = sliding_volume[0]
 
-    xyz_boxes, number_of_atoms_xyz = get_boxes_from_xyz(xyz_filename, sliding_volume, stride_size, padding_ratio=padding_ratio, give_atom_density=True, plot_atom_density=True)
+    xyz_boxes, number_of_atoms_xyz = get_boxes_from_xyz(xyz_filename, sliding_volume, stride_size, padding_ratio=padding_ratio, give_atom_density=True, plot_atom_density=False)
     tot_nb_boxes = len(xyz_boxes) * len(xyz_boxes[0]) * len(xyz_boxes[0][0])
 
     logger.info("Box size: {}".format(box_size))

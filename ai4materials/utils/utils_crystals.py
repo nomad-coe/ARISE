@@ -1265,8 +1265,8 @@ def get_nn_distance(atoms, distribution='quantile_nn', cutoff=20.0,
     #    then get_neighbors(b) will not return a as a neighbor - unless
     #    bothways=True was used."
     nl = NeighborList(cutoffs, skin=0.1, self_interaction=False, bothways=True)
-    nl.build(atoms)
-
+    # nl.build(atoms) previously used.
+    nl.update(atoms)
     nn_dist = []
 
     for idx in range(nb_atoms):
@@ -1575,7 +1575,7 @@ def scale_structure(atoms, scaling_type, atoms_scaling_cutoffs, min_scale_factor
             scale_factor = get_nn_distance(atoms=atoms, distribution=scaling_type, cutoff=cutoff, 
                                            element_sensitive=element_sensitive, central_atom_species=central_atom_species,
                                            neighbor_atoms_species=neighbor_atoms_species, constrain_nn_distances=constrain_nn_distances)
-            print(scale_factor)
+            #print(scale_factor)
             if scale_factor is not None:
                 if min_scale_factor < scale_factor < max_scale_factor:
                     logger.debug("Cut off of {0} was successful".format(cutoff))

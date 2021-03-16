@@ -53,8 +53,8 @@ class quippy_SOAP_descriptor(Descriptor):
     
     def __init__(self,configs=None,p_b_c=False,cutoff=4.0,l_max=6,n_max=9,atom_sigma=0.1,central_weight=0.0,
                  average=True,average_over_permuations=False,number_averages=200,atoms_scaling='quantile_nn',atoms_scaling_cutoffs=[10.], extrinsic_scale_factor=1.0,
-                 n_Z=1, Z=26, n_species=1, species_Z=26, scale_element_sensitive=False, return_binary_descriptor=True, average_binary_descriptor=True, min_atoms=1, shape_soap = 316,
-                 constrain_nn_distances=False):
+                 n_Z=1, Z=26, n_species=1, species_Z=26, scale_element_sensitive=True, return_binary_descriptor=True, average_binary_descriptor=True, min_atoms=1, shape_soap = 316,
+                 constrain_nn_distances=False, version='py2'):
         super(quippy_SOAP_descriptor, self).__init__(configs=configs)
         
         self.p_b_c=p_b_c
@@ -101,7 +101,7 @@ class quippy_SOAP_descriptor(Descriptor):
         descriptor_options = 'soap '+'cutoff='+str(self.cutoff)+' l_max='+str(self.l_max)+' n_max='+str(self.n_max)+' atom_sigma='+str(self.atom_sigma)+\
                              ' n_Z='+str(self.n_Z)+' Z={'+str(self.Z)+'} n_species='+str(self.n_species)+' species_Z={'+str(self.species_Z)+'} central_weight='+str(self.central_weight)+' average='+str(self.average)              
         self.descriptor_options=descriptor_options
-
+        self.version = version
         
         
     def calculate(self,structure,**kwargs):
@@ -128,7 +128,7 @@ class quippy_SOAP_descriptor(Descriptor):
             raise ValueError("Format of cell not known.")
         
         structure.set_pbc(self.p_b_c)
-        print(self.p_b_c)
+        #print(self.p_b_c)
         logger.info("Structure: "+str(structure))
         # Important for  avoiding crash of polycrystal code
         # Uncommented part: look at TOTAL number of atoms. Now do it element-specific (i.e. each species needs to be there min_atoms # times, otherwise this species will not be considered and treated as vacancy)
@@ -190,24 +190,27 @@ class quippy_SOAP_descriptor(Descriptor):
                                          ' n_Z='+str(n_Z)+' Z={'+str(Z)+'} n_species='+str(n_species)+' species_Z={'+str(species_Z)+'} central_weight='+str(self.central_weight)+' average='+str(self.average)  
                     desc=descriptors.Descriptor(descriptor_options)
                     
-                    #Define structure as quippy Atoms object
-                    #filename=str(atoms.info['label'])+'.xyz'
-                    #ase_write(filename,atoms,format='xyz')
-                    #struct=quippy_Atoms(filename)
-                    struct=quippy_Atoms(atoms)     # Seems to work fine like this. (rather than creating xyz file first)
-                    struct.set_pbc(self.p_b_c)
-                    
-                    #Remove redundant files that have been created
-                    #if os.path.exists(filename):
-                    #    os.remove(filename)
-                    #if os.path.exists(filename+'.idx'):
-                    #    os.remove(filename+'.idx')
-                    
-                    #Compute SOAP descriptor
-                    struct.set_cutoff(desc.cutoff())
-                    struct.calc_connect()
-                    SOAP_descriptor=desc.calc(struct)['descriptor']
-                    #print 'SOAP '+str(SOAP_descriptor.flatten().shape)                
+                    if self.version == 'py3':
+                        SOAP_descriptor = desc.calc(atoms)['data'].flatten()
+                    else:
+                        #Define structure as quippy Atoms object
+                        #filename=str(atoms.info['label'])+'.xyz'
+                        #ase_write(filename,atoms,format='xyz')
+                        #struct=quippy_Atoms(filename)
+                        struct=quippy_Atoms(atoms)     # Seems to work fine like this. (rather than creating xyz file first)
+                        struct.set_pbc(self.p_b_c)
+                        
+                        #Remove redundant files that have been created
+                        #if os.path.exists(filename):
+                        #    os.remove(filename)
+                        #if os.path.exists(filename+'.idx'):
+                        #    os.remove(filename+'.idx')
+                        
+                        #Compute SOAP descriptor
+                        struct.set_cutoff(desc.cutoff())
+                        struct.calc_connect()
+                        SOAP_descriptor=desc.calc(struct)['descriptor']
+                        #print 'SOAP '+str(SOAP_descriptor.flatten().shape)                
                     
                     if any(np.isnan(SOAP_descriptor.flatten())):
                         #plt.plot(SOAP_descriptor.flatten())
@@ -245,61 +248,7 @@ class quippy_SOAP_descriptor(Descriptor):
                 descriptor_data = dict(descriptor_name=self.name, descriptor_info=str(self), SOAP_descriptor=np.array(all_descriptors))
             structure.info['descriptor'] = descriptor_data
             return structure            
-            
-            
-        else:
-            
-            atoms = scale_structure(structure, scaling_type=self.atoms_scaling,
-                                    atoms_scaling_cutoffs=self.atoms_scaling_cutoffs, extrinsic_scale_factor=self.extrinsic_scale_factor,
-                                    element_sensitive=self.scale_element_sensitive, central_atom_species=self.Z, neighbor_atoms_species=self.species_Z,
-                                    constrain_nn_distances=self.constrain_nn_distances)
-    
-                           
-            #Define descritpor
-            desc=descriptors.Descriptor(self.descriptor_options)
-            
-            #Define structure as quippy Atoms object
-            #filename=str(atoms.info['label'])+'.xyz'
-            #ase_write(filename,atoms,format='xyz')
-            #struct=quippy_Atoms(filename)
-            struct=quippy_Atoms(atoms)     # Seems to work fine like this. (rather than creating xyz file first)
-            struct.set_pbc(self.p_b_c)
-            
-            #Remove redundant files that have been created
-            #if os.path.exists(filename):
-            #    os.remove(filename)
-            #if os.path.exists(filename+'.idx'):
-            #    os.remove(filename+'.idx')
-            
-            #Compute SOAP descriptor
-            struct.set_cutoff(desc.cutoff())
-            struct.calc_connect()
-            SOAP_descriptor=desc.calc(struct)['descriptor']
-            
-            if self.average_over_permuations:
-                #average over different orders
-                SOAP_proto_averaged=np.zeros(SOAP_descriptor.size)
-                SOAP_proto_copy=SOAP_descriptor 
-                # To do: SOAP_proto_copy is not a real copy...
-                # The right way: http://henry.precheur.org/python/copy_list.html
-                # or just a = ..., b = np.array(a)
-                for i in range(self.number_averages):
-                    np.random.shuffle(SOAP_proto_copy)
-                    SOAP_proto_averaged=np.add(SOAP_proto_averaged,SOAP_proto_copy.flatten())
-                SOAP_proto_averaged=np.array([x/float(self.number_averages) for x in SOAP_proto_averaged])
-                SOAP_descriptor=SOAP_proto_averaged              
-                
-            
-            if self.average:
-                SOAP_descriptor=SOAP_descriptor.flatten() # if get averaged LAE, then default output shape is (1,316), hence flatten()
-            
-            
-            descriptor_data = dict(descriptor_name=self.name, descriptor_info=str(self), SOAP_descriptor=SOAP_descriptor)
-    
-            structure.info['descriptor'] = descriptor_data
-            
-            
-            return structure
+
                              
     def write(self,structure,tar,write_soap_npy=True,write_soap_png=True,op_id=0,write_geo=True,format_geometry='aims'):
         """Write the descriptor to file.
