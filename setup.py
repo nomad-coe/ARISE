@@ -79,12 +79,16 @@ def main():
         # your project is installed. For an analysis of "install_requires" vs pip's
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
-        install_requires=['ase==3.15.0',  # neighbors list does not work for ase 3.16
-            'scikit-learn >=0.17.1', 'tensorflow==1.8.0', 'pint', 'future', 'pandas',
-                          'bokeh',
-            'enum34', 'pymatgen', 'keras==1.2.0', 'pillow>=2.7.0', 'mendeleev', 'keras-tqdm', 
-                          'seaborn', 'paramiko', 'scipy', 'nose>=1.0', 'sqlalchemy', 'theano==0.9.0',
-            'numpy', 'h5py', 'cython>=0.19', 'pyshtools', 'Jinja2'],
+        install_requires=['ase', 'tensorflow<2.0', 'keras', 'scikit-learn', 'pint', 'future',
+                          'pandas', 'enum34', 'pymatgen', 'keras-tqdm', 'seaborn', 'paramiko',
+                          'scipy', 'nose>=1.0', 'numpy', 'h5py', 'cython>=0.19', 'pyshtools', 'Jinja2']
+        #         
+        #'ase==3.15.0',  # neighbors list does not work for ase 3.16
+        #    'scikit-learn >=0.17.1', 'tensorflow==1.8.0', 'pint', 'future', 'pandas',
+        #                  'bokeh',
+        #    'enum34', 'pymatgen', 'keras==1.2.0', 'pillow>=2.7.0', 'mendeleev', 'keras-tqdm', 
+        #                  'seaborn', 'paramiko', 'scipy', 'nose>=1.0', 'sqlalchemy', 'theano==0.9.0',
+        #    'numpy', 'h5py', 'cython>=0.19', 'pyshtools', 'Jinja2'],
 
         # 'bokeh==0.11.0',
 
@@ -110,9 +114,9 @@ def main():
         # installed, specify them here.  If using Python 2.6 or less, then these
         # have to be included in MANIFEST.in as well.
         package_data={
-            'ai4materials': ['descriptors/descriptors.nomadmetainfo.json', 'descriptors/atomic_data.nomadmetainfo.json',
+            'ai4materials': ['descriptors/descriptors.nomadmetainfo.json', 
                         'data/nn_models/*.h5', 'data/nn_models/*.json',
-                        'utils/units.txt', 'utils/constants.txt', 'visualization/nomad_viewer.css', ]},
+                        ]},
 
         # Although 'package_data' is the preferred approach, in some case you may
         # need to place data files outside of your packages. See:
