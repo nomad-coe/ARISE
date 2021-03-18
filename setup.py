@@ -115,7 +115,7 @@ def main():
         # have to be included in MANIFEST.in as well.
         package_data={
             'ai4materials': ['descriptors/descriptors.nomadmetainfo.json', 
-                        'data/nn_models/*.h5', 'data/nn_models/*.json',
+                        'data/nn_models/*.h5', 'data/nn_models/*.json', 'utils/units.txt', 'utils/constants.txt'
                         ]},
 
         # Although 'package_data' is the preferred approach, in some case you may
