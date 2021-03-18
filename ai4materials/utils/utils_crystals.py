@@ -43,7 +43,8 @@ import math
 from scipy import constants
 import scipy
 import pandas as pd
-from itertools import izip
+# from itertools import izip
+from itertools import zip_longest as zip
 from itertools import permutations
 from decimal import Decimal
 import copy
