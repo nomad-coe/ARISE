@@ -79,7 +79,7 @@ def main():
         # your project is installed. For an analysis of "install_requires" vs pip's
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
-        install_requires=['ase', 'tensorflow=1.13.1', 'keras=2.2.4', 'scikit-learn', 'pint', 'future',
+        install_requires=['ase==3.19.0', 'tensorflow==1.13.1', 'keras==2.2.4', 'scikit-learn', 'pint', 'future',
                           'pandas', 'enum34', 'pymatgen', 'keras-tqdm', 'seaborn', 'paramiko',
                           'scipy', 'nose>=1.0', 'numpy', 'h5py', 'cython>=0.19', 'pyshtools', 'Jinja2'],
         #         
