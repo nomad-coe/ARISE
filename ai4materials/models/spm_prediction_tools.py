@@ -282,7 +282,8 @@ def calc_local(geometry_files, box_size, stride, configs,
                padding_ratio=None, 
                min_atoms=3, 
                adjust_box_size_by_number_of_atoms=False, min_n_atoms=100, criterion='median',
-               min_atoms_spm=50, model_file=None, path_to_summary_train=None, descriptor=None, mc_samples=1000, plot_results=False):
+               min_atoms_spm=50, model_file=None, path_to_summary_train=None, descriptor=None,
+               mc_samples=1000, plot_results=False, desc_filename=None):
     """
     geometry_files: list
         list of geometry files
@@ -338,6 +339,9 @@ def calc_local(geometry_files, box_size, stride, configs,
         Decide wheter to automatically generate svg files for visual analysis.
 
     """
+    if not desc_filename == None:
+        if not (type(desc_filename) == list or len(desc_filename)==len(geometry_files)):
+            raise ValueError("If specify desc files, specifiy them as list containing at least len(geometry_files) entries.")
     
     if model_file == None:
         model_file = get_data_filename('data/nn_models/AI_SYM_Leitherer_et_al_2021.h5')
@@ -387,6 +391,7 @@ def calc_local(geometry_files, box_size, stride, configs,
     predictions = []
     uncertainty = []
     #print(structure_files, strides, box_sizes, padding_ratios)
+    geom_file_id = 0
     for structure_file, stride_size, box_size, padding_ratio in zip(structure_files, strides, box_sizes, padding_ratios):
         print('Structure file {}'.format(structure_file))
         appendix_to_folder = '_box_' + str(box_size) + '_stride_' + str(stride_size)
@@ -493,12 +498,16 @@ def calc_local(geometry_files, box_size, stride, configs,
     
         save_file = open(os.path.join(main_folder, os.path.basename(structure_file)[:-4]+'_log_file.txt'),'w') 
         # comment if you have already calculated the descriptor for the .xyz file
+        desc_filename_to_load = None
+        if not desc_filename == None:
+            desc_filename_to_load = desc_filename[geom_file_id]
+            geom_file_id += 1
         
         start = time.time()
         path_to_x_test, path_to_y_test, path_to_summary_test, path_to_strided_pattern_pos = make_strided_pattern_matching_dataset(
             polycrystal_file=structure_file, descriptor=descriptor, desc_metadata='SOAP_descriptor',
             configs=configs_new, operations_on_structure=None, stride_size=stride_size, box_size=box_size,
-            init_sliding_volume=None, desc_file=None, desc_only=False, show_plot_lengths=False,
+            init_sliding_volume=None, desc_file=desc_filename_to_load, desc_only=False, show_plot_lengths=False,
             desc_file_suffix_name='', nb_jobs=16, padding_ratio=padding_ratio, min_nb_atoms=min_atoms_spm)#min_atoms)
         end = time.time()
         ex_time = str(end-start)

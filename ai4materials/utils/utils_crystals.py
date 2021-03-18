@@ -23,8 +23,9 @@ __email__ = "ziletti@fhi-berlin.mpg.de"
 __date__ = "23/09/18"
 
 from ase.neighborlist import NeighborList
-from ase.build import find_optimal_cell_shape_pure_python
-from ase.build import get_deviation_from_optimal_cell_shape
+# optimal cell shape -> TODO
+# from ase.build import find_optimal_cell_shape_pure_python
+# from ase.build import get_deviation_from_optimal_cell_shape
 from ase.build import make_supercell
 from ase.spacegroup import get_spacegroup as ase_get_spacegroup
 import ase
@@ -46,7 +47,7 @@ from itertools import izip
 from itertools import permutations
 from decimal import Decimal
 import copy
-from ai4materials.utils.utils_binaries import get_chemical_formula_binaries
+# from ai4materials.utils.utils_binaries import get_chemical_formula_binaries
 import ai4materials.utils.unit_conversion as uc
 from ai4materials.utils.utils_config import get_data_filename
 import scipy.misc
@@ -776,6 +777,7 @@ def create_supercell(atoms, create_replicas_by='nb_atoms', min_nb_atoms=None, ta
     atoms = standardize_cell(atoms, cell_type)
 
     if optimal_supercell:
+        raise NotImplementedError("In the current version of ai4materials, this option is not yet implemented.")
         logger.info("Using optimal supercell algorithm for replica determination. ")
         # optimal supercell following https://wiki.fysik.dtu.dk/ase/tutorials/defects/defects.html
         # there is a scipy-based implementation (find_optimal_cell_shape) but it does not work

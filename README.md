@@ -10,9 +10,10 @@ ARISE: Crystal-structure recognition via Bayesian deep learning
 This package provides code for reproducing the results of 
 
     A. Leitherer, A. Ziletti, and L.M. Ghiringhelli,
-    Robust recognition and exploratory analysis of crystal structures via Bayesian deep learning, arXiv.... (2021)
+    Robust recognition and exploratory analysis of crystal structures via Bayesian deep learning, arXiv:2103.09777 (2021)
 
-This repository uses functionalities of ai4materials (https://github.com/angeloziletti/ai4materials, https://ai4materials.readthedocs.io/en/latest/).
+within the NOMAD tutorial available at  analytics-toolkit.nomad-coe.eu/tutorial-ARISE. 
+This repository uses functionalities of ai4materials (https://github.com/angeloziletti/ai4materials) that is currently under development.
 
 ai4materials allows to perform complex analysis of materials science data, using machine learning techniques. It also
 provide functions to pre-process (on parallel processors), save and subsequently load materials science datasets,
@@ -25,12 +26,11 @@ Code author: Angelo Ziletti, Ph.D. (angelo.ziletti@gmail.com; ziletti@fhi-berlin
 ------------------
 Installation
 ------------------
-Clone this repository, cd into ARISE and execute
+You can install this repository via 
 
-    pip install -e .
+pip install 'git+https://github.com/AndreasLeitherer/ARISE.git'
 
-Currently, this package contains two implementations for the smooth-overlap-of-atomic-positions (SOAP) descriptor, one from quippy (https://github.com/libAtoms/QUIP) and one from DScribe (https://singroup.github.io/dscribe/latest/). These packages are external dependencies that have to be installed manually (see respective documentations).
-
+For the SOAP descriptor, we employ the quippy package  (https://github.com/libAtoms/QUIP)
 ---------------
 Usage
 ---------------

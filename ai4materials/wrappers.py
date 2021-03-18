@@ -35,10 +35,10 @@ from ai4materials.utils.utils_mp import collect_desc_folders
 from ai4materials.utils.utils_data_retrieval import clean_folder
 from ai4materials.utils.utils_data_retrieval import write_desc_info_file
 from ai4materials.utils.utils_config import overwrite_configs
-from ai4materials.utils.utils_config import read_nomad_metainfo
+# from ai4materials.utils.utils_config import read_nomad_metainfo
 from ai4materials.utils.utils_crystals import modify_crystal
-from ai4materials.models.l1_l0 import combine_features, l1_l0_minimization
-from ai4materials.models.sis import SIS
+#from ai4materials.models.l1_l0 import combine_features, l1_l0_minimization
+#from ai4materials.models.sis import SIS
 from ai4materials.utils.utils_data_retrieval import extract_files
 from ai4materials.utils.utils_config import get_metadata_info
 from ai4materials.utils.utils_data_retrieval import write_ase_db_file
@@ -330,7 +330,7 @@ def calc_model(method, tmp_folder, results_folder, combine_features_with_ops=Tru
         max_dim = 3
 
     if method == 'l1_l0' or method == 'SIS':
-
+        raise NotImplementedError("Not supported currently.")
         # # if there are nan, drop entire row
         # if df.isnull().values.any():
         #     #df.dropna(axis=0, how='any', inplace=True)

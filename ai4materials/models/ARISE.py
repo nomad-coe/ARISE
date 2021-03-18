@@ -99,34 +99,50 @@ def preparations(main_folder, p_b_c=False, l_max=6,
     return descriptor, model
 
 
-def global_(geometry_files, main_folder=None, n_iter=1000, configs=None, model=None, format_='aims', **kwargs): #, logger=None):
+def global_(geometry_files, main_folder=None, n_iter=1000, configs=None,
+            model=None, format_='aims',
+            descriptors=None, save_descriptors=False,
+            save_path_descriptors=None, **kwargs): #, logger=None):
     # TODO: change functionality such that at least model prediction is done in parallel (maybe descriptor calculation in parallel as optional since it will create new folders)
     descriptor, model = preparations(main_folder, configs=configs, model=model, **kwargs) #, logger)
     
     input_shape_from_model = model.layers[0].get_input_at(0).get_shape().as_list()[1:]
     target_shape = tuple([-1] + input_shape_from_model)
 
-    soap_descriptors = []
-    structures = []
-
-    for geometry_file in geometry_files:
-        # read structure into ase object
-        structure = read(geometry_file, ':', format=format_)[0] # TODO more general formatting
-                         #format=geometry_file.split('.')[-1])
-
-        structures.append(structures)
-        # calculate descriptor
-        soap_desc = descriptor.calculate(structure).info['descriptor']['SOAP_descriptor']
-        soap_descriptors.append(soap_desc)
+    if not type(descriptors) == type(None):
+        soap_descriptors = descriptors
+    else:
+        soap_descriptors = []
+        structures = []
+    
+        for geometry_file in geometry_files:
+            # read structure into ase object
+            structure = read(geometry_file, ':', format=format_)[0] # TODO more general formatting
+                             #format=geometry_file.split('.')[-1])
+    
+            structures.append(structures)
+            # calculate descriptor
+            soap_desc = descriptor.calculate(structure).info['descriptor']['SOAP_descriptor']
+            soap_descriptors.append(soap_desc)
     # calculate predictions
     data = np.reshape(soap_descriptors, target_shape)
     prediction, uncertainty = predict_with_uncertainty(data, model=model, model_type='classification', n_iter=n_iter)
+    
+    if save_descriptors:
+        if save_path_descriptors == None:
+            base_paths = [os.path.basename(_) for _ in geometry_files]
+            splitted_base_paths = [_.split('.')[0] for _ in base_paths]
+            geo_file_string = '_'.join(splitted_base_paths)
+            save_path_descriptors = os.path.join(os.getcwd(), geo_file_string + '.npy')
+        np.save(save_path_descriptors, soap_descriptors)
 
     # TODO save predictions, uncertainty, structures, descriptors into ase database file
     return prediction, uncertainty
     
     
-def local(geometry_files, stride, box_size, configs, n_iter=1000, main_folder=None, descriptor=None, model=None, format_='aims', **kwargs):
+def local(geometry_files, stride, box_size, configs, n_iter=1000, main_folder=None,
+          descriptor=None, model=None, format_='aims',
+          desc_filename=None, **kwargs):
     
     # read config file
     """
@@ -136,11 +152,15 @@ def local(geometry_files, stride, box_size, configs, n_iter=1000, main_folder=No
     logger = setup_logger(configs, level='INFO', display_configs=False)
     """
     
-    predictions, uncertainty = calc_local(geometry_files, box_size, stride, configs, descriptor=descriptor, model_file=model, **kwargs)
+    predictions, uncertainty = calc_local(geometry_files, box_size, stride, configs,
+                                          descriptor=descriptor, model_file=model,
+                                          desc_filename=desc_filename, **kwargs)
     
     return predictions, uncertainty
     
-def analyze(geometry_filenames, mode='global', training_info=None, stride=None, box_size=None, configs=None, descriptor=None, model=None, format_=None, **kwargs):
+def analyze(geometry_filenames, mode='global', training_info=None, stride=None,
+            box_size=None, configs=None, descriptor=None, model=None,
+            format_=None, descriptors=None, save_descriptors=False, save_path_descriptors=None, **kwargs):
     """
     Apply ARISE to given list of geometry files.
     
@@ -188,6 +208,16 @@ def analyze(geometry_filenames, mode='global', training_info=None, stride=None, 
     format_: str, optional (default=None)
         format of geometry files. If not specified, the input files are assumed to have aims format in case of
         global mode, and xyz format in case of local mode.
+
+    descriptors: path to desc or numpy array, optional (default=None)
+        If mode=local, then this must be a path to a desc file containing the descriptors.
+        If mode=global, then this must be a numpy array containing the descriptors. 
+
+    save_descriptors: bool, optional (default=False)
+        Decides whether to save calculated descriptors into specified savepath or not (only for mode=local).
+
+    save_path_descriptors: str, optional (default=None)
+        path into which descriptors are saved (for mode=global)
     """
     
     if not model == None:
@@ -215,9 +245,14 @@ def analyze(geometry_filenames, mode='global', training_info=None, stride=None, 
             raise ValueError("Model must be a path to a h5 file or None. In the latter case, a pretrained model is loaded.")
     
     if mode == 'global':
-        predictions, uncertainty = global_(geometry_filenames, descriptor=descriptor, model=model, format_=format_, **kwargs)
+        predictions, uncertainty = global_(geometry_filenames, descriptor=descriptor,
+                                           model=model, format_=format_,
+                                           descriptors=descriptors, save_descriptors=save_descriptors,
+                                           save_path_descriptors=save_path_descriptors, **kwargs)
     elif mode == 'local':
-        predictions, uncertainty = local(geometry_filenames, stride, box_size, configs, descriptor=descriptor, model=model, format_=format_, **kwargs)
+        predictions, uncertainty = local(geometry_filenames, stride, box_size, configs,
+                                         descriptor=descriptor, model=model, format_=format_,
+                                         desc_filename=descriptors, **kwargs)
     else:
         raise ValueError("Argument 'mode' must either be 'local' or 'global'.")
     return predictions, uncertainty
