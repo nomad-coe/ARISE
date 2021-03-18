@@ -116,7 +116,7 @@ def main():
         package_data={
             'ai4materials': ['descriptors/descriptors.nomadmetainfo.json', 
                         'data/nn_models/*.h5', 'data/nn_models/*.json', 'utils/units.txt', 'utils/constants.txt',
-                        'data/PROTOTYPES', 'data/training_data'
+                        'data/PROTOTYPES/*', 'data/training_data/*'
                         ]},
 
         # Although 'package_data' is the preferred approach, in some case you may
