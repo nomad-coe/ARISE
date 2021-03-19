@@ -81,7 +81,7 @@ def main():
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=['ase==3.19.0', 'tensorflow==1.13.1', 'keras==2.2.4', 'scikit-learn', 'pint', 'future',
                           'pandas', 'enum34', 'pymatgen==2017.12.6', 'keras-tqdm', 'seaborn', 'paramiko',
-                          'scipy', 'nose>=1.0', 'numpy', 'h5py', 'cython>=0.19', 'pyshtools', 'Jinja2'],
+                          'scipy', 'nose>=1.0', 'numpy', 'h5py', 'cython>=0.19', 'pyshtools==4.1.2', 'Jinja2'],
         #         
         #'ase==3.15.0',  # neighbors list does not work for ase 3.16
         #    'scikit-learn >=0.17.1', 'tensorflow==1.8.0', 'pint', 'future', 'pandas',
