@@ -35,10 +35,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from math import cos
 from math import sin
-from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
+#from pymatgen.io.ase import AseAtomsAdaptor
+#from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+#from pymatgen.core.structure import Structure
+#from pymatgen.core.lattice import Lattice
 import math
 from scipy import constants
 import scipy
