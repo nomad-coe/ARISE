@@ -20,7 +20,7 @@ ai4materials allows to perform complex analysis of materials science data, using
 provide functions to pre-process (on parallel processors), save and subsequently load materials science datasets,
 thus easing the traceability, reproducibility, and prototyping of new models.
 
-Code author: Angelo Ziletti, Ph.D. (angelo.ziletti@gmail.com; ziletti@fhi-berlin.mpg.de), Andreas Leitherer, Ph.D. student (andreas.leitherer@gmail.com, leitherer@fhi-berlin.mpg.de)
+Code author: Angelo Ziletti, Ph.D. (angelo.ziletti@gmail.com), Andreas Leitherer, Ph.D. (andreas.leitherer@gmail.com, leitherer@fhi-berlin.mpg.de)
 
 
 
@@ -31,13 +31,13 @@ You can install this repository via
 
 pip install 'git+https://github.com/AndreasLeitherer/ARISE.git'
 
-For the SOAP descriptor, we employ the quippy package  (https://github.com/libAtoms/QUIP)
+For the SOAP descriptor, we employ the quippy package  (see https://github.com/libAtoms/QUIP for installation instructions).
 
 ---------------
 Usage
 ---------------
 
-For global or local analysis of single- or polycrystalline systems, one just needs to define the corresponding geometry file and load a pretrained model for prediction:
+For global or local analysis of single- or polycrystalline systems, one just needs to define the corresponding geometry file(s) and load a pretrained model for prediction:
 
     from ai4materials.models import ARISE
 
@@ -45,5 +45,7 @@ For global or local analysis of single- or polycrystalline systems, one just nee
 
     predictions, uncertainty = ARISE.analyze(geometry_files=['file_1', ...], mode='global') 
 
-    predictions, uncertainty = ARISE.analyze(geometry_files=['file_1', ... ], mode='local',
-                                              stride=[[2.0, 2.0, 2.0], ... ], box_size=[12.0, ...])
+    predictions, uncertainty = ARISE.analyze(geometry_files=['file_1', ...], mode='local',
+                                              stride=[[2.0, 2.0, 2.0], ...], box_size=[12.0, ...])
+
+Please refer to  http://analytics-toolkit.nomad-coe.eu/tutorial-ARISE and the associated publication for more details.
