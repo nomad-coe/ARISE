@@ -4,13 +4,14 @@
 ARISE: Crystal-structure recognition via Bayesian deep learning
 ========================================================
 
-![](./assets/ARISE_logo.jpeg)
+![](./assets/ARISE_logo.svg)
 
 
 This package provides code for reproducing the results of 
 
-    A. Leitherer, A. Ziletti, and L.M. Ghiringhelli,
-    Robust recognition and exploratory analysis of crystal structures via Bayesian deep learning, arXiv:2103.09777 (2021)
+    A. Leitherer, A. Ziletti, and L.M. Ghiringhelli. 
+    Robust recognition and exploratory analysis of crystal structures via Bayesian deep learning. 
+    Nature Communications 12, 6234 (2021) https://doi.org/10.1038/s41467-021-26511-5
 
 within the NOMAD tutorial available at  analytics-toolkit.nomad-coe.eu/tutorial-ARISE. 
 This repository uses functionalities of ai4materials (https://github.com/angeloziletti/ai4materials) that is currently under development.
@@ -31,6 +32,7 @@ You can install this repository via
 pip install 'git+https://github.com/AndreasLeitherer/ARISE.git'
 
 For the SOAP descriptor, we employ the quippy package  (https://github.com/libAtoms/QUIP)
+
 ---------------
 Usage
 ---------------
@@ -41,7 +43,7 @@ For global or local analysis of single- or polycrystalline systems, one just nee
 
     geometry_files = [ ... ]
 
-    predictions, uncertainty = ARISE.analyze(geometry_files, mode='global') 
+    predictions, uncertainty = ARISE.analyze(geometry_files=['file_1', ...], mode='global') 
 
-    predictions, uncertainty = ARISE.analyze(geometry_files, mode='local',
-                                              stride=1.0, box_size=12.0)
+    predictions, uncertainty = ARISE.analyze(geometry_files=['file_1', ... ], mode='local',
+                                              stride=[[2.0, 2.0, 2.0], ... ], box_size=[12.0, ...])
